@@ -7,6 +7,7 @@ public class EnableFire : MonoBehaviour
     public GameObject[] objectsToEnable; // Array of objects to enable
     public float delayBetweenObjects = 2f; // Delay between enabling each object
     private Light directionalLight; // Reference to the directional light
+    private int currentIndex = 0; // Index of the current object to enable
 
     void Start()
     {
@@ -17,11 +18,11 @@ public class EnableFire : MonoBehaviour
 
     void EnableNextObject()
     {
-        foreach (GameObject obj in objectsToEnable)
+        if (currentIndex < objectsToEnable.Length)
         {
-            obj.SetActive(true); // Enable the next object in the array
+            objectsToEnable[currentIndex].SetActive(true); // Enable the current object
+            currentIndex++; // Increment the index
             Invoke("EnableNextObject", delayBetweenObjects); // Invoke EnableNextObject method again after the delay
-            break; // Exit the loop after enabling one object
         }
     }
 
