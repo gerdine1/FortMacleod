@@ -6,32 +6,64 @@ public class EnableFire : MonoBehaviour
 {
     public GameObject[] objectsToEnable; // Array of objects to enable
     public float delayBetweenObjects = 2f; // Delay between enabling each object
-    private Light directionalLight; // Reference to the directional light
     private int currentIndex = 0; // Index of the current object to enable
+
+    public AudioSource[] soundsToEnable; // Array of AudioSources for the sound effects to enable
+    public AudioSource[] soundsToDisable; // Array of AudioSources for the sound effects to disable
 
     void Start()
     {
-        directionalLight = FindObjectOfType<Light>(); // Find the directional light in the scene
         Invoke("EnableNextObject", delayBetweenObjects); // Invoke EnableNextObject method after the initial delay
-        Invoke("MakeSceneDarker", delayBetweenObjects); // Invoke MakeSceneDarker method after the initial delay
+        Invoke("ManageSoundEffects", delayBetweenObjects); // Invoke ManageSoundEffects method after the initial delay
     }
 
     void EnableNextObject()
     {
         if (currentIndex < objectsToEnable.Length)
         {
-            objectsToEnable[currentIndex].SetActive(true); // Enable the current object
+            GameObject obj = objectsToEnable[currentIndex];
+            obj.SetActive(true); // Enable the current object
+
+            AudioSource audioSource = obj.GetComponent<AudioSource>();
+            if (audioSource != null)
+            {
+                audioSource.Play(); // Play the sound effect if AudioSource is attached
+            }
+
             currentIndex++; // Increment the index
             Invoke("EnableNextObject", delayBetweenObjects); // Invoke EnableNextObject method again after the delay
         }
     }
 
-    void MakeSceneDarker()
+    void ManageSoundEffects()
     {
-        if (directionalLight != null)
+        if (soundsToEnable.Length > 0)
         {
-            directionalLight.intensity = 0.5f; // Set the intensity of the directional light to make the scene darker
-            directionalLight.color = Color.gray; // Optionally, change the color of the light to gray for a darker effect
+            // Enable the first sound effect after a delay
+            AudioSource firstSound = soundsToEnable[0];
+            if (firstSound != null)
+            {
+                firstSound.PlayDelayed(delayBetweenObjects);
+            }
+
+            // Enable the second sound effect after a delay
+            if (soundsToEnable.Length > 1)
+            {
+                AudioSource secondSound = soundsToEnable[1];
+                if (secondSound != null)
+                {
+                    secondSound.PlayDelayed(delayBetweenObjects * 2); // Double the delay for the second sound
+                }
+            }
+        }
+
+        // Disable all sound effects in soundsToDisable (if needed)
+        foreach (AudioSource sound in soundsToDisable)
+        {
+            if (sound != null && sound.isPlaying)
+            {
+                sound.Stop(); // Disable the sound effect
+            }
         }
     }
 }
